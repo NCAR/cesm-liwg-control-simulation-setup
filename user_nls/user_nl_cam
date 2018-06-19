@@ -1,0 +1,17 @@
+nhtfrq = 0,-8760
+empty_htapes = .true.
+
+fincl1 = 'FLDS', 'FLNS', 'FLNSC', 'FLNT', 'FLNTC', 'FLUT', 'FLUTC', 
+'FSDS', 'FSDSC', 'FSNS', 'FSNSC', 'FSNT', 'FSNTC', 'FSNTOA', 'FSNTOAC', 'FSUTOA', 
+'PRECC', 'PRECL', 'PRECSC', 'PRECSL', 'TMQ', 'TS', 'PSL',
+'CLDHGH', 'CLDLOW', 'CLDMED', 'CLDTOT', 'SHFLX', 'LHFLX', 'ICEFRAC', 
+'SNOWHLND', 'SNOWHICE', 'TAUX', 'TAUY', 'TGCLDCWP', 'TGCLDIWP', 'TGCLDLWP',
+'U250', 'U500', 'U850', 'V250', 'V500', 'V850'
+
+fincl2 = 'FLDS', 'FLNS', 'FLNSC', 'FLNT', 'FLNTC', 'FLUT', 'FLUTC', 
+'FSDS', 'FSDSC', 'FSNS', 'FSNSC', 'FSNT', 'FSNTC', 'FSNTOA', 'FSNTOAC', 'FSUTOA', 
+'ICEFRAC', 'LANDFRAC', 'LHFLX', 'LWCF', 'OCNFRAC', 'PBLH', 'PHIS', 
+'PRECC', 'PRECL', 'PRECSC', 'PRECSL', 'PS', 'PSL', 'QFLX', 'QREFHT', 'SHFLX', 
+'SOLIN', 'TREFHT', 'TS', 'TSMN', 'TSMX', 'U10', 'SWCF', 
+'CLDICE', 'CLDLIQ', 'CLOUD', 'OMEGA', 'Q', 
+'RELHUM', 'T', 'Z3', 'V', 'U', 'UU', 'VV', 'VU'

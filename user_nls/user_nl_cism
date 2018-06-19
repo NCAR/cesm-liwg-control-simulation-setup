@@ -1,0 +1,5 @@
+temp_init = 4
+pseudo_plastic_bedmax = 700.
+pseudo_plastic_bedmin = -300.
+cesm_history_vars='acab_applied artm beta_internal bmlt bmlt_applied bpmp bwat calving_rate floating_mask grounded_mask smb tempstag thk topg uvel vvel wvel velnorm ubas vbas ivol iareag iareaf iarea imass imass_above_flotation'
+cisminputfile='/glade/p/cesm/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions/CISM2/greenland_4km_epsg3413_c171126_10ka_temp.nc'

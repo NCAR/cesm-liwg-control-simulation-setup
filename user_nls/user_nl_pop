@@ -1,0 +1,12 @@
+chl_option = 'model'
+n_tavg_streams = 1
+ltavg_ignore_extra_streams = .true.
+tavg_freq_opt(1) = 'nyear'
+tavg_file_freq_opt(1) = 'nyear'
+tavg_contents = '/glade/p/cesm/liwg/JG_BG_setup_and_initial_conditions/POP_output_list/gx1v7_tavg_contents'
+
+fesedflux_input%filename = '/glade/p/cesmdata/cseg/inputdata/ocn/pop/gx1v6/forcing/fesedfluxTot_gx1v6_cesm2_2018_c180507.nc'
+
+nhy_flux_monthly_input%filename = '/glade/p/cesmdata/cseg/inputdata/ocn/pop/gx1v6/forcing/ndep_ocn_1850_w_nhx_emis_gx1v6_c180427.nc'
+nox_flux_monthly_input%filename = '/glade/p/cesmdata/cseg/inputdata/ocn/pop/gx1v6/forcing/ndep_ocn_1850_w_nhx_emis_gx1v6_c180427.nc'
+

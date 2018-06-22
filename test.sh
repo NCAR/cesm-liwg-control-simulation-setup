@@ -61,45 +61,45 @@ User=jfyke
 
 ##set up case    
 
-#    ./xmlchange RUN_TYPE='hybrid'
+    ./xmlchange RUN_TYPE='hybrid'
 
     #Set primary restart-gathering names
-#    ./xmlchange RUN_REFDIR=$BG_t_RunDir
-#    ./xmlchange RUN_REFCASE=b.e20.B1850.f09_g17.pi_control.all.297.clone
-#    ./xmlchange RUN_REFDATE=0078-01-01
-#    ./xmlchange RUN_STARTDATE=0001-01-01
-#    ./xmlchange CONTINUE_RUN=FALSE
+    ./xmlchange RUN_REFDIR=$BG_t_RunDir
+    ./xmlchange RUN_REFCASE=b.e20.B1850.f09_g17.pi_control.all.297.clone
+    ./xmlchange RUN_REFDATE=0078-01-01
+    ./xmlchange RUN_STARTDATE=0001-01-01
+    ./xmlchange CONTINUE_RUN=FALSE
 
     # Set ocean tracers from separate file
     ## === OBS === Only in BG1, uncomment for all other simulations
-#?    ./xmlchange POP_PASSIVE_TRACER_RESTART_OVERRIDE='/glade/scratch/klindsay/archive/g.e20e10j.G1850ECO_CPLHIST.f09_g17.bf_spin.001/rest/1597-01-01-00000/g.e20e10j.G1850ECO_CPLHIST.f09_g17.bf_spin.001.pop.r.1597-01-01-00000.nc'
+    ./xmlchange POP_PASSIVE_TRACER_RESTART_OVERRIDE='/glade/scratch/klindsay/archive/g.e20e10j.G1850ECO_CPLHIST.f09_g17.bf_spin.001/rest/1597-01-01-00000/g.e20e10j.G1850ECO_CPLHIST.f09_g17.bf_spin.001.pop.r.1597-01-01-00000.nc'
 
-#?    if [ $t == 2 ]; then
-#?	./xmlchange POP_PASSIVE_TRACER_RESTART_OVERRIDE='none'
- #?   fi
+    if [ $t == 2 ]; then
+	./xmlchange POP_PASSIVE_TRACER_RESTART_OVERRIDE='none'
+    fi
 
     ./case.setup
 
     ## Copy  to initial condition files
-#    CESM_SD="/glade/u/home/marcusl/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions/CESM2_rest/0078-01-01-00000"
-#    CESM_CaseName="b.e20.B1850.f09_g17.pi_control.all.297.clone"
-#
-#    for f in `ls "$CESM_SD"/"$CESM_CaseName"*`; do
-#      if ! echo $f | grep --quiet 'cism.r.'; then
-#         echo Copying $f
-#         cp $f $BG_t_RunDir/`basename $f`
-#      fi
-#    done
+    CESM_SD="/glade/u/home/marcusl/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions/CESM2_rest/0078-01-01-00000"
+    CESM_CaseName="b.e20.B1850.f09_g17.pi_control.all.297.clone"
 
-#    for f in rpointer.atm \
-#             rpointer.drv \
-#	     rpointer.ice \
-#	     rpointer.lnd \
-#	     rpointer.ocn.ovf \
-#	     rpointer.ocn.restart \
-#	     rpointer.rof; do
-#      cp $CESM_SD/$f $BG_t_RunDir/$f
-#    done
+    for f in `ls "$CESM_SD"/"$CESM_CaseName"*`; do
+      if ! echo $f | grep --quiet 'cism.r.'; then
+         echo Copying $f
+         cp $f $BG_t_RunDir/`basename $f`
+      fi
+    done
+
+    for f in rpointer.atm \
+             rpointer.drv \
+	     rpointer.ice \
+	     rpointer.lnd \
+	     rpointer.ocn.ovf \
+	     rpointer.ocn.restart \
+	     rpointer.rof; do
+      cp $CESM_SD/$f $BG_t_RunDir/$f
+    done
 
 ###make some soft links for convenience
     ln -s $BG_t_RunDir RunDir   
@@ -110,10 +110,10 @@ User=jfyke
     ./xmlchange HIST_N=1
 
 ###set common user_nl mods that apply to JG and BG alike
-     #for f in `ls $D/user_nls/user_nl*`; do
-     #    echo Copying $f mods to $CaseName
-     #    cp  $f $D/$CaseName
-     #done
+     for f in `ls $D/user_nls/user_nl*`; do
+         echo Copying $f mods to $CaseName
+         cp  $f $D/$CaseName
+     done
 
 ### === CPL, BG-specific output settings === ###
      cat >> user_nl_cpl <<EOF
@@ -124,7 +124,7 @@ User=jfyke
 EOF
 
 ### Copy in any SourceMods
-     #cp -rf $D/SourceMods  $D/$CaseName/SourceMods
+     cp -rf $D/SourceMods  $D/$CaseName/SourceMods
 
 ###configure submission length and restarting
 

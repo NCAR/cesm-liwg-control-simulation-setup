@@ -1,23 +1,26 @@
 #!/bin/bash
 
+#TODO: CHECK TOPO FORCING
+
 D=$PWD
+User=jfyke
 
 ###build up CaseNames, RunDirs, Archive Dirs, etc.
     t=2
     let tm1=t-1
 
-    BG_CaseName_Root=test_sourcemods_BG_iteration_
-    JG_CaseName_Root=test_sourcemods_JG_iteration_
-    BG_Restart_Year_Short=35
+    BG_CaseName_Root=BG_iteration_
+    JG_CaseName_Root=JG_iteration_
+    BG_Restart_Year_Short=6
     BG_Restart_Year=`printf %04d $BG_Restart_Year_Short`
-    BG_Forcing_Year_Start=5
+    BG_Forcing_Year_Start=1
     let BG_Forcing_Year_End=BG_Restart_Year_Short-1
     
     #Set name of simulation
     CaseName=$JG_CaseName_Root"$t"
     PreviousBGCaseName="$BG_CaseName_Root""$tm1"
-    JG_t_RunDir=/glade/scratch/marcusl/$CaseName/run
-    BG_tm1_ArchiveDir=/glade/scratch/marcusl/$PreviousBGCaseName/run
+    JG_t_RunDir=/glade/scratch/$User/$CaseName/run
+    BG_tm1_ArchiveDir=/glade/scratch/$User/$PreviousBGCaseName/run
 
 ###set project code
     ProjCode=P93300301
@@ -25,20 +28,14 @@ D=$PWD
 
 ###set up model
     #Set the source code from which to build model
-    CCSMRoot=/glade/p/work/marcusl/CESM_model_versions/cesm2_0_beta10
-
+    CCSMRoot=$D/Model_Version/cesm2.0.0
 
     echo '****'
-    echo "Building code from $CCSMRoot with source code modifications in following files:"
-    svn status $CCSMRoot | grep 'M    '
-    echo '****'    
+    echo "Building code from $CCSMRoot"
 
-
-#			   --user-compset \
-    
     $CCSMRoot/cime/scripts/create_newcase \
                            --case $D/$CaseName \
-			   --compset 1850_DATM%CRU_CLM50%BGC_CICE_POP2%ECO_MOSART_CISM2%EVOLVE_WW3_BGC%BDRD \
+			   --compset 1850_DATM%CRU_CLM50%BGC-CROP_CICE_POP2%ECO_MOSART_CISM2%EVOLVE_WW3_BGC%BDRD \
 			   --res f09_g17_gl4 \
 			   --mach cheyenne \
 			   --project $ProjCode \
@@ -112,7 +109,6 @@ D=$PWD
     ./xmlchange RUN_REFDATE="$BG_Restart_Year"-01-01
 
     ./xmlchange DATM_MODE='CPLHIST'
-#    ./xmlchange DATM_MODE='CPLHISTForcing' ## not working..
     ./xmlchange DATM_CPLHIST_CASE="$PreviousBGCaseName"
     ./xmlchange DATM_CPLHIST_DIR="$BG_tm1_ArchiveDir"
     
@@ -120,15 +116,11 @@ D=$PWD
     ./xmlchange DATM_CPLHIST_YR_END=$BG_Forcing_Year_End
     ./xmlchange DATM_CPLHIST_YR_ALIGN=$BG_Forcing_Year_Start
 
-#    ./xmlchange DATM_PRESAERO='cplhist' ## not working
     ./xmlchange DATM_PRESAERO='clim_1850'
-
-
 
     ./xmlchange CPL_ALBAV='false'
     ./xmlchange CPL_EPBAL='off'
 
-#    ./xmlchange DATM_TOPO='none' #NOTE: ALSO NEED 'a2x3h_S_topo topo' line added to datm/cime_config/namelist_definition_datm.xml!
     ./xmlchange DATM_TOPO='cplhist' #NOTE: ALSO NEED 'a2x3h_S_topo topo' line added to datm/cime_config/namelist_definition_datm.xml!
 
     ./case.setup
@@ -136,100 +128,18 @@ D=$PWD
 ###configure archiving
     ./xmlchange DOUT_S=FALSE
 
+###set common user_nl mods that apply to JG and BG alike
+     for f in `ls $D/user_nls/user_nl*`; do
+         echo Copying $f mods to $CaseName
+         cp  $f $D/$CaseName
+     done
 
-
-
-###configure CICE
-cat > user_nl_cice <<EOF
- histfreq = "y"
- histfreq_n = 1
-EOF
-
-
-###configure CLM 
-cat > user_nl_clm <<EOF
- hist_empty_htapes = .true.
- hist_fincl1 = 'EFLX_LH_TOT', 'FIRA', 'FIRA_R', 'FIRE', 'FIRE_R', 'FLDS', 'FSA', 'FSDS',
- 'FSH', 'FSM', 'QICE', 'QICE_FRZ', 'QICE_MELT',
- 'QRUNOFF', 'QRUNOFF_ICE', 'QRUNOFF_ICE_TO_COUPLER', 'QRUNOFF_TO_COUPLER', 'QSNOCPLIQ',
- 'QSNOEVAP', 'QSNOFRZ', 'QSNOFRZ_ICE', 'QSNOMELT', 'QSNOMELT_ICE',
- 'QSNO_TEMPUNLOAD', 'QSNO_WINDUNLOAD', 'QSNWCPICE', 'QSOIL', 'QSOIL_ICE',
- 'QVEGE', 'QVEGT', 'RAIN', 'RAIN_FROM_ATM','SNOW', 'SNOWDP', 'SNOWICE', 'SNOWLIQ',
- 'SNOW_DEPTH', 'SNOW_FROM_ATM', 'SNOW_PERSISTENCE', 'SNOW_SINKS', 'SNOW_SOURCES',
- 'SOIL1C', 'SOIL1N', 'SOIL2C', 'SOIL2N', 'SOIL3C', 'SOIL3N', 'TSA', 'TBOT',
- 'TOTECOSYSC','TOTECOSYSN','TOTSOMC','TOTSOMN','TOTVEGC','TOTVEGN','TLAI',
- 'GPP','CPOOL','NPP','TWS'
-EOF
-
-    
-###configure CISM2    
-cat > user_nl_cism <<EOF
- temp_init = 4
- pseudo_plastic_bedmax = 700.
- pseudo_plastic_bedmin = -300.
- cesm_history_vars='acab_applied artm beta_internal bmlt bmlt_applied bpmp bwat calving_rate floating_mask grounded_mask smb tempstag thk topg uvel vvel wvel velnorm ubas vbas ivol iareag iareaf iarea imass imass_above_flotation'
- ice_tstep_multiply=10
-EOF
-
-
-
-### configure marbl
-## OBS: these settings might change -- talk to K Lindsay
-cat > user_nl_marbl <<EOF
- ladjust_bury_coeff=.false.
-
- grazing(2,1)%z_umax_0_per_day = 3.15
- grazing(3,1)%z_umax_0_per_day = 3.3
-
- autotrophs(3)%PCref_per_day = 2.5
-
- parm_FeLig_scavenge_rate0 = 1.3
- parm_Fe_scavenge_rate0 = 24
-
- autotrophs(1)%gQfe_min = 2.7e-06
- autotrophs(2)%gQfe_min = 2.7e-06
- autotrophs(3)%gQfe_min = 5.4e-06
-
- parm_scalelen_vals(1) = 1
- parm_scalelen_vals(2) = 2.9
- parm_scalelen_vals(3) = 4.5
- parm_scalelen_vals(4) = 5.0
-
- parm_SiO2_diss = 700.0e2
-
- caco3_bury_thres_omega_calc = 0.90
-EOF
-
-    
-###configure POP
-## OBS: these settings might change -- talk to K Lindsay
-cat > user_nl_pop <<EOF
- chl_option = 'model'
- n_tavg_streams = 1
- ltavg_ignore_extra_streams = .true.
- tavg_freq_opt(1) = 'nyear'
- tavg_file_freq_opt(1) = 'nyear'
- tavg_contents = '/glade/p/cesm/liwg/JG_BG_setup_and_initial_conditions/POP_output_list/gx1v7_tavg_contents'
-
-
- fesedflux_input%filename = '/glade/p/cesmdata/cseg/inputdata/ocn/pop/gx1v6/forcing/fesedfluxTot_gx1v6_cesm2_2018_c180507.nc'
-
- nhy_flux_monthly_input%filename = '/glade/p/cesmdata/cseg/inputdata/ocn/pop/gx1v6/forcing/ndep_ocn_1850_w_nhx_emis_gx1v6_c180427.nc'
- nox_flux_monthly_input%filename = '/glade/p/cesmdata/cseg/inputdata/ocn/pop/gx1v6/forcing/ndep_ocn_1850_w_nhx_emis_gx1v6_c180427.nc'
-
+###configure POP JG-specific settings
+cat >> user_nl_pop <<EOF
 ladjust_precip=.false.
 lsend_precip_fact=.false.
 lms_balance=.true.
-
 EOF
-
-
-
-    #Turn off precipitation scaling in POP for JG runs
-#    echo ladjust_precip=.false. > user_nl_pop
-#    echo lsend_precip_fact=.false. >> user_nl_pop
-    #Turn on inland sea->open ocean rebalancing (should reduce amount of restoring in these regions)
-#    echo lms_balance=.true. >> user_nl_pop 
     
 ###concatenate monthly forcing files to expected location
     
@@ -246,7 +156,7 @@ EOF
 	   for ftype in ha2x1hi ha2x1h ha2x3h ha2x1d; do
 	       for fname in $BG_tm1_ArchiveDir/$PreviousBGCaseName.cpl.$ftype.$yr-$m-*.nc; do 
 	           if [ -e "$fname" ]; then
-	               rm -v $fname
+	               rm $fname
                    fi
 	       done
 	   done	   
@@ -255,23 +165,23 @@ EOF
 
 ####copy over JG restart files from previous BG run
     echo Copying restart files from $PreviousBGCaseName
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.cice.r."$BG_Restart_Year"-01-01-00000.nc;      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.cism.r."$BG_Restart_Year"-01-01-00000.nc;      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.clm2.r."$BG_Restart_Year"-01-01-00000.nc;      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.clm2.rh0."$BG_Restart_Year"-01-01-00000.nc;    cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.cpl.hi."$BG_Restart_Year"-01-01-00000.nc;      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }    
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.cpl.r."$BG_Restart_Year"-01-01-00000.nc;       cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.mosart.r."$BG_Restart_Year"-01-01-00000.nc;    cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }    
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.mosart.rh0."$BG_Restart_Year"-01-01-00000.nc;  cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }     
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.pop.r."$BG_Restart_Year"-01-01-00000.nc;       cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.pop.ro."$BG_Restart_Year"-01-01-00000;         cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }        
-    f=$BG_tm1_ArchiveDir/rpointer.drv;                                                      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/rpointer.glc;                                                      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/rpointer.ice;                                                      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/rpointer.lnd;                                                      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/rpointer.ocn.ovf;                                                  cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/rpointer.ocn.restart;                                              cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
-    f=$BG_tm1_ArchiveDir/rpointer.rof;                                                      cp -uvf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }  
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.cice.r."$BG_Restart_Year"-01-01-00000.nc;      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.cism.r."$BG_Restart_Year"-01-01-00000.nc;      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.clm2.r."$BG_Restart_Year"-01-01-00000.nc;      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.clm2.rh0."$BG_Restart_Year"-01-01-00000.nc;    cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.cpl.hi."$BG_Restart_Year"-01-01-00000.nc;      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }	
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.cpl.r."$BG_Restart_Year"-01-01-00000.nc;       cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.mosart.r."$BG_Restart_Year"-01-01-00000.nc;    cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }	
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.mosart.rh0."$BG_Restart_Year"-01-01-00000.nc;  cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }	 
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.pop.r."$BG_Restart_Year"-01-01-00000.nc;       cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/$PreviousBGCaseName.pop.ro."$BG_Restart_Year"-01-01-00000;         cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }	    
+    f=$BG_tm1_ArchiveDir/rpointer.drv;                                                      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/rpointer.glc;                                                      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/rpointer.ice;                                                      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/rpointer.lnd;                                                      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/rpointer.ocn.ovf;                                                  cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/rpointer.ocn.restart;                                              cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
+    f=$BG_tm1_ArchiveDir/rpointer.rof;                                                      cp -uf $f $JG_t_RunDir || { echo "copy of $f failed" ; exit 1; }  
     #Ensure dates are correct (can be wrong if year previous to final year of JG run is used)
     sed -i "s/[0-9]\{4\}-01-01-00000/"$BG_Restart_Year"-01-01-00000/g" "$JG_t_RunDir"/rpointer.*
 
@@ -282,17 +192,14 @@ EOF
     ./xmlchange REST_N=5      
     ./xmlchange HIST_OPTION='nmonths'
     ./xmlchange HIST_N=1   
-    ./xmlchange RESUBMIT=9
-#    ./xmlchange JOB_QUEUE='economy'
-    ./xmlchange JOB_QUEUE='regular'
+    ./xmlchange RESUBMIT=0
+    ./xmlchange JOB_QUEUE='economy'
+#    ./xmlchange JOB_QUEUE='regular'
     ./xmlchange JOB_WALLCLOCK_TIME='12:00:00'
     ./xmlchange PROJECT="$ProjCode"
 
-
 ###make some soft links for convenience 
     ln -svf $JG_t_RunDir RunDir
-#    ln -svf /glade/scratch/jfyke/archive/$CaseName ArchiveDir
-    ln -svf /glade/scratch/marcusl/archive/$CaseName ArchiveDir
     
 ###set up restoring
     if [ ! -f $BG_tm1_ArchiveDir/climo_SSS_FLXIO.nc ]; then
@@ -317,19 +224,19 @@ EOF
 	 exit
        fi
     fi
-    
-    echo "sfwf_filename='$BG_tm1_ArchiveDir/climo_SSS_FLXIO.nc'" >> user_nl_pop
-    echo "sfwf_file_fmt='nc'" >> user_nl_pop
-    echo "sfwf_data_type='monthly'" >> user_nl_pop
+cat >> user_nl_pop <<EOF   
+sfwf_filename=$BG_tm1_ArchiveDir/climo_SSS_FLXIO.nc
+sfwf_file_fmt='nc'
+sfwf_data_type='monthly'
+EOF
 
+exit
 
-
-    
 ###build
-#    ./case.build    
+    ./case.build    
 
 ###sumbmit
-#    ./case.submit
+    ./case.submit
 
 
     

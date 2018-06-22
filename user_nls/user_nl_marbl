@@ -1,4 +1,4 @@
-adjust_bury_coeff=.false.
+ladjust_bury_coeff=.false.
 
 grazing(2,1)%z_umax_0_per_day = 3.15
 grazing(3,1)%z_umax_0_per_day = 3.3

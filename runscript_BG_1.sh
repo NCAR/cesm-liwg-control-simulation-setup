@@ -19,6 +19,8 @@
 #
 #####################
 
+#TODO: CHECK SOURCEMODS, CHECK USER NAMELISTS, CHECK RESTART GENERATION
+
 D=$PWD
 User=jfyke
 
@@ -84,8 +86,8 @@ User=jfyke
 
     for f in `ls "$CESM_SD"/"$CESM_CaseName"*`; do
       if ! echo $f | grep --quiet 'cism.r.'; then
-         echo Linking $f
-         ln -sf $f $BG_t_RunDir/`basename $f`
+         echo Copying $f
+         cp $f $BG_t_RunDir/`basename $f`
       fi
     done
 
@@ -96,7 +98,7 @@ User=jfyke
 	     rpointer.ocn.ovf \
 	     rpointer.ocn.restart \
 	     rpointer.rof; do
-      ln -sf $CESM_SD/$f $BG_t_RunDir/$f
+      cp $CESM_SD/$f $BG_t_RunDir/$f
     done
 
 ###make some soft links for convenience
@@ -108,10 +110,10 @@ User=jfyke
     ./xmlchange HIST_N=1
 
 ###set common user_nl mods that apply to JG and BG alike
-     for f in `ls $D/user_nls/user_nl*`; do
-         echo Copying $f mods to $CaseName
-         cp  $f $D/$CaseName
-     done
+     #for f in `ls $D/user_nls/user_nl*`; do
+     #    echo Copying $f mods to $CaseName
+     #    cp  $f $D/$CaseName
+     #done
 
 ### === CPL, BG-specific output settings === ###
      cat >> user_nl_cpl <<EOF
@@ -122,9 +124,7 @@ User=jfyke
 EOF
 
 ### Copy in any SourceMods
-     cp -rf $D/SourceMods  $D/$CaseName/SourceMods
-
-exit
+     #cp -rf $D/SourceMods  $D/$CaseName/SourceMods
 
 ###configure submission length and restarting
 
@@ -136,22 +136,15 @@ exit
 ###number of years per submission 
     ## 5 is probably a good compromize
     ./xmlchange STOP_OPTION='nyears'
-    ./xmlchange STOP_N=5
-
-###restart files every # years
-    ## use 5 for BG (sync with STOP_N)
-    ./xmlchange REST_OPTION='nyears'
-    ./xmlchange REST_N=5
+    ./xmlchange STOP_N=1
 
     ./xmlchange RESUBMIT=1
 #    ./xmlchange RESUBMIT=34
     ./xmlchange JOB_QUEUE="$JOB_QUEUE"
-#    ./xmlchange JOB_WALLCLOCK_TIME=01:30:00
-    ./xmlchange JOB_WALLCLOCK_TIME=06:00:00 ## Use for 5yrs submission
-#    ./xmlchange JOB_WALLCLOCK_TIME=02:40:00 
-#    ./xmlchange JOB_WALLCLOCK_TIME=00:10:00
-    ./xmlchange --subgroup case.st_archive JOB_QUEUE=regular
-    ./xmlchange --subgroup case.st_archive JOB_WALLCLOCK_TIME=00:02:00
+    ./xmlchange JOB_WALLCLOCK_TIME=01:30:00
+#    ./xmlchange JOB_WALLCLOCK_TIME=06:00:00 ## Use for 5yrs submission
+#    ./xmlchange --subgroup case.st_archive JOB_QUEUE=regular
+#    ./xmlchange --subgroup case.st_archive JOB_WALLCLOCK_TIME=00:02:00
 
 ####build
     qcmd -- ./case.build

@@ -19,8 +19,8 @@
 #
 #####################
 
-#TODO: CHECK SOURCEMODS, CHECK USER NAMELISTS, CHECK RESTART GENERATION
-
+##TODO: CHECK SOURCEMODS
+##TODO: GET MARCUS PE LAYOUT WORKING
 D=$PWD
 User=jfyke
 
@@ -57,7 +57,7 @@ User=jfyke
 
 ###customize PE layout
     ## Copy env_mach_pes.xml from "official spinup"
-    cp $D/env_mach_pes_BG/env_mach_pes_fast.xml $D/$CaseName/env_mach_pes.xml #CHECK THIS!  NOT CLEAR FROM MARCUS INSTRUCTIONS
+    #cp $D/env_mach_pes_BG/env_mach_pes_fast.xml $D/$CaseName/env_mach_pes.xml #CHECK THIS!  NOT CLEAR FROM MARCUS INSTRUCTIONS
 
 ##set up case    
 
@@ -80,7 +80,7 @@ User=jfyke
 
     ./case.setup
 
-    ## Soft-link to initial condition files
+    ## Copy  to initial condition files
     CESM_SD="/glade/u/home/marcusl/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions/CESM2_rest/0078-01-01-00000"
     CESM_CaseName="b.e20.B1850.f09_g17.pi_control.all.297.clone"
 
@@ -110,10 +110,10 @@ User=jfyke
     ./xmlchange HIST_N=1
 
 ###set common user_nl mods that apply to JG and BG alike
-     #for f in `ls $D/user_nls/user_nl*`; do
-     #    echo Copying $f mods to $CaseName
-     #    cp  $f $D/$CaseName
-     #done
+     for f in `ls $D/user_nls/user_nl*`; do
+         echo Copying $f mods to $CaseName
+         cp  $f $D/$CaseName
+     done
 
 ### === CPL, BG-specific output settings === ###
      cat >> user_nl_cpl <<EOF
@@ -124,12 +124,9 @@ User=jfyke
 EOF
 
 ### Copy in any SourceMods
-     #cp -rf $D/SourceMods  $D/$CaseName/SourceMods
+     cp -rf $D/SourceMods  $D/$CaseName/SourceMods
 
 ###configure submission length and restarting
-
-    JOB_QUEUE='economy'
-#    JOB_QUEUE='regular'
 
     ./xmlchange PROJECT="$ProjCode"   
 
@@ -140,8 +137,8 @@ EOF
 
     ./xmlchange RESUBMIT=1
 #    ./xmlchange RESUBMIT=34
-    ./xmlchange JOB_QUEUE="$JOB_QUEUE"
-    ./xmlchange JOB_WALLCLOCK_TIME=01:30:00
+    ./xmlchange JOB_QUEUE='regular'
+    ./xmlchange JOB_WALLCLOCK_TIME=03:30:00
 #    ./xmlchange JOB_WALLCLOCK_TIME=06:00:00 ## Use for 5yrs submission
 #    ./xmlchange --subgroup case.st_archive JOB_QUEUE=regular
 #    ./xmlchange --subgroup case.st_archive JOB_WALLCLOCK_TIME=00:02:00

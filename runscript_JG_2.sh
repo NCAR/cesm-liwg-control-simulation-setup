@@ -21,7 +21,7 @@ User=jfyke
     PreviousBGCaseName="$BG_CaseName_Root""$tm1"
     JG_t_RunDir=/glade/scratch/$User/$CaseName/run
     BG_tm1_cpl_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/cpl/hist/
-    BG_tm1_rest_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/rest/0003-01-01-00000/
+    BG_tm1_rest_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/rest/"$BG_Restart_Year"-01-01-00000/
     BG_tm1_ocn_restoring_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/ocn/hist/
 
 ###set project code
@@ -127,7 +127,7 @@ User=jfyke
     ./case.setup
     
 ###configure archiving
-    ./xmlchange DOUT_S=FALSE
+    ./xmlchange DOUT_S=TRUE
 
 ###set common user_nl mods that apply to JG and BG alike
      for f in `ls $D/user_nls/user_nl*`; do

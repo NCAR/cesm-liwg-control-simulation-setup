@@ -1,5 +1,28 @@
 temp_init = 4
-pseudo_plastic_bedmax = 700.
-pseudo_plastic_bedmin = -300.
-cesm_history_vars='acab_applied artm beta_internal bmlt bmlt_applied bpmp bwat calving_rate floating_mask grounded_mask smb tempstag thk topg uvel vvel wvel velnorm ubas vbas ivol iareag iareaf iarea imass imass_above_flotation'
-cisminputfile='/glade/p/cesm/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions/CISM2/greenland_4km_epsg3413_c171126_10ka_temp.nc'
+cesm_history_vars='acab_applied artm beta_internal bmlt bmlt_applied bpmp bwat calving_rate effecpress floating_mask grounded_mask smb tempstag thk thkmask topg uvel vvel wvel velnorm ubas vbas ivol iareag iareaf iarea imass ivol total_bmb_flux total_smb_flux total_calving_flux imass_above_flotation'
+cisminputfile='/glade/u/home/sbradley/BG_JG/greenland_4km_epsg3413_c171126_10ka_temp_relx.nc'
+marine_margin = 7
+limit_marine_cliffs = .true.
+bmlt_float = 3
+isostasy = 1
+which_ho_calving_front = 1
+which_ho_ground = 1
+ice_limit = 1.
+bmlt_float_h0 = 20.
+bmlt_float_depth_frzmax = 3.
+bmlt_float_depth_meltmax = 100.
+calving_minthck = 75.
+calving_timescale = 1.
+eigencalving_constant = 0.0025
+eigen2_weight = 25.
+lithosphere = 1
+asthenosphere = 1
+ relaxed_tau = 3000
+whichrelaxed = 0
+lithosphere_period = 100
+
+
+
+
+
+

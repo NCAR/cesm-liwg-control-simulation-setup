@@ -11,7 +11,7 @@ User=jfyke
 
     BG_CaseName_Root=BG_iteration_
     JG_CaseName_Root=JG_iteration_
-    BG_Restart_Year_Short=3
+    BG_Restart_Year_Short=35
     BG_Restart_Year=`printf %04d $BG_Restart_Year_Short`
     BG_Forcing_Year_Start=1
     let BG_Forcing_Year_End=BG_Restart_Year_Short-1
@@ -20,6 +20,7 @@ User=jfyke
     CaseName=$JG_CaseName_Root"$t"
     PreviousBGCaseName="$BG_CaseName_Root""$tm1"
     JG_t_RunDir=/glade/scratch/$User/$CaseName/run
+    JG_t_ArchiveDir=/glade/scratch/$User/archive/$CaseName
     BG_tm1_cpl_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/cpl/hist/
     BG_tm1_rest_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/rest/"$BG_Restart_Year"-01-01-00000/
     BG_tm1_ocn_restoring_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/ocn/hist/
@@ -136,7 +137,8 @@ User=jfyke
      done
      
 ### Copy in any SourceMods
-     cp -rf $D/SourceMods  $D/$CaseName/SourceMods
+     rm -rf  $D/$CaseName/SourceMods
+     cp -r $D/SourceMods  $D/$CaseName/SourceMods
      
 ###configure POP JG-specific settings
 cat >> user_nl_pop <<EOF
@@ -144,7 +146,12 @@ ladjust_precip=.false.
 lsend_precip_fact=.false.
 lms_balance=.true.
 EOF
-    
+   
+###configure CISM JG-specific settings
+cat >> user_nl_cism <<EOF
+ice_tstep_multiply=10
+EOF
+ 
 ###concatenate monthly forcing files to expected location
     
     for yr in `seq -f '%04g' $BG_Forcing_Year_Start $BG_Forcing_Year_End`; do 
@@ -179,13 +186,12 @@ cp -v $BG_tm1_rest_Dir/* $JG_t_RunDir
     ./xmlchange HIST_N=1   
     ./xmlchange RESUBMIT=0
     ./xmlchange JOB_QUEUE='economy'
-#    ./xmlchange JOB_QUEUE='regular'
     ./xmlchange JOB_WALLCLOCK_TIME='12:00:00'
     ./xmlchange PROJECT="$ProjCode"
 
 ###make some soft links for convenience 
     ln -svf $JG_t_RunDir RunDir
-    
+    ln -svf $JG_t_ArchiveDir ArchiveDir 
 ###set up restoring
     if [ ! -f $BG_tm1_ocn_restoring_Dir/climo_SSS_FLXIO.nc ]; then
        for m in `seq -f '%02g' 1 12`; do

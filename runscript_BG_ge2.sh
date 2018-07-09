@@ -102,7 +102,8 @@ User=jfyke
 EOF
 
 ### Copy in any SourceMods
-     cp -rf $D/SourceMods  $D/$CaseName/SourceMods
+    rm -rf $D/$CaseName/SourceMods
+    cp -r $D/SourceMods  $D/$CaseName/SourceMods
 
 ###copy restarts
     # Copy restarts from end of JG simulation

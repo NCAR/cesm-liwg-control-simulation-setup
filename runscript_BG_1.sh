@@ -147,7 +147,8 @@ User=jfyke
 	./xmlchange POP_PASSIVE_TRACER_RESTART_OVERRIDE='none'
     fi
 
-    ./case.setup
+#    ./case.setup
+    ./case.setup --reset
 
     ## Copy  to initial condition files
     CESM_SD="/glade/u/home/marcusl/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions/CESM2_rest/0078-01-01-00000"

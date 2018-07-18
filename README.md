@@ -1,6 +1,9 @@
 # cesm-liwg-control-simulation-setup
 Scripts and settings used for the CESM Land Ice Working Group JG-BG spinup
 
+# Diagostic plots available at:
+https://drive.google.com/drive/u/1/folders/12JlbJGXDewBOZeCyXCKBFLjG0D4b8AkW
+
 # Generation of the CISM ‘RELX’ field added to the input data set:
 To run CISM with isostasy: elastic lithosphere and relaxed asthenosphere, option whichrelaxed=0 requires in the input file a RELX field. The RELX field can be interpreted as the topography that would be reached, when the asthenosphere fully relaxed. More information on the differences is given in 
 		~/source_cism/libglide/isostasy.F90

@@ -22,22 +22,23 @@
 ##TODO: CHECK SOURCEMODS
 ##TODO: GET MARCUS PE LAYOUT WORKING
 D=$PWD
-User=jfyke
+User=katec
 
     t=1
 
     BG_CaseName_Root=BG_iteration_
 
     CaseName=$BG_CaseName_Root"$t"
+    Outputroot=/glade/scratch/$User/CESM2-CISM2-JG-BG-Sept2018
        
-    BG_t_RunDir=/glade/scratch/$User/$CaseName/run
+    BG_t_RunDir=$Outputroot/$CaseName/run
 
 ###set project code
     ProjCode=P93300301
 
 ###set up model
     #Set the source code from which to build model
-    CCSMRoot=$D/Model_Version/cesm2.0.0
+    CCSMRoot=$D/Model_Version/cesm2.0.1+CISMmaster
 
     echo '****'
     echo "Building code from $CCSMRoot"
@@ -46,6 +47,7 @@ User=jfyke
 
     $CCSMRoot/cime/scripts/create_newcase \
                            --case $D/$CaseName \
+	                   --output-root $Outputroot \ 
                            --compset B1850G \
                            --res f09_g17_gl4 \
                            --mach cheyenne \

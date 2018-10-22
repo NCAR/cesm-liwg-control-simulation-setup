@@ -3,7 +3,7 @@
 #TODO: CHECK TOPO FORCING
 
 D=$PWD
-User=jfyke
+User=katec
 
 ###build up CaseNames, RunDirs, Archive Dirs, etc.
     t=2
@@ -11,37 +11,32 @@ User=jfyke
 
     BG_CaseName_Root=BG_iteration_
     JG_CaseName_Root=JG_iteration_
-    BG_Restart_Year_Short=35
+    BG_Restart_Year_Short=37
     BG_Restart_Year=`printf %04d $BG_Restart_Year_Short`
     BG_Forcing_Year_Start=1
     let BG_Forcing_Year_End=BG_Restart_Year_Short-1
+    Outputroot=/glade/scratch/$User/CESM2-CISM2-JG-BG-Sept2018
     
     #Set name of simulation
     CaseName=$JG_CaseName_Root"$t"
     PreviousBGCaseName="$BG_CaseName_Root""$tm1"
-    JG_t_RunDir=/glade/scratch/$User/$CaseName/run
-    JG_t_ArchiveDir=/glade/scratch/$User/archive/$CaseName
-    BG_tm1_cpl_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/cpl/hist/
-    BG_tm1_rest_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/rest/"$BG_Restart_Year"-01-01-00000/
-    BG_tm1_ocn_restoring_Dir=/glade/scratch/$User/archive/"$PreviousBGCaseName"/ocn/hist/
+    JG_t_RunDir=$Outputroot/$CaseName/run
+    JG_t_ArchiveDir=$Outputroot/archive/$CaseName
+    BG_tm1_cpl_Dir=$Outputroot/archive/"$PreviousBGCaseName"/cpl/hist/
+    BG_tm1_rest_Dir=$Outputroot/archive/"$PreviousBGCaseName"/rest/"$BG_Restart_Year"-01-01-00000/
+    BG_tm1_ocn_restoring_Dir=$Outputroot/archive/"$PreviousBGCaseName"/ocn/hist/
 
 ###set project code
     ProjCode=P93300301
 
 ###set up model
     #Set the source code from which to build model
-    CCSMRoot=$D/Model_Version/cesm2.0.0
+    CCSMRoot=$D/Model_Version/cesm2.0.1+CISMmaster
 
     echo '****'
     echo "Building code from $CCSMRoot"
 
-    $CCSMRoot/cime/scripts/create_newcase \
-                           --case $D/$CaseName \
-			   --compset 1850_DATM%CRU_CLM50%BGC-CROP_CICE_POP2%ECO_MOSART_CISM2%EVOLVE_WW3_BGC%BDRD \
-			   --res f09_g17_gl4 \
-			   --mach cheyenne \
-			   --project $ProjCode \
-			   --run-unsupported 
+    $CCSMRoot/cime/scripts/create_newcase --case $D/$CaseName --output-root $Outputroot --compset 1850_DATM%CRU_CLM50%BGC-CROP_CICE_POP2%ECO_MOSART_CISM2%EVOLVE_WW3_BGC%BDRD --res f09_g17_gl4 --mach cheyenne --project $ProjCode --run-unsupported 
 			   
     #Change directories into the new experiment case directory
     cd $D/$CaseName
@@ -167,6 +162,7 @@ EOF
 	   for ftype in ha2x1hi ha2x1h ha2x3h ha2x1d; do
 	       for fname in $BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.$yr-$m-*.nc; do 
 	           if [ -e "$fname" ]; then
+		       echo 'Remove ' $fname
 	               rm $fname
                    fi
 	       done
@@ -178,15 +174,16 @@ EOF
 cp -v $BG_tm1_rest_Dir/* $JG_t_RunDir
 
 ###configure submission length, diagnostic CPL history output, and restarting
+### final length of JG run should be 150 years
     ./xmlchange STOP_OPTION='nyears'
-    ./xmlchange STOP_N=15
+    ./xmlchange STOP_N=10
     ./xmlchange REST_OPTION='nyears'
     ./xmlchange REST_N=5      
     ./xmlchange HIST_OPTION='nmonths'
     ./xmlchange HIST_N=1   
     ./xmlchange RESUBMIT=0
-    ./xmlchange JOB_QUEUE='economy'
-    ./xmlchange JOB_WALLCLOCK_TIME='12:00:00'
+    ./xmlchange JOB_QUEUE='premium'
+    ./xmlchange JOB_WALLCLOCK_TIME='10:00:00'
     ./xmlchange PROJECT="$ProjCode"
 
 ###make some soft links for convenience 

@@ -145,7 +145,7 @@ User=katec
 #    ./case.setup --reset
 
     ## Copy  to initial condition files
-    CESM_SD="/glade/u/home/katec/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions/"
+    CESM_SD="/gpfs/u/home/katec/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions"
     CESM_CaseName="b.e20.B1850.f09_g17.pi_control.all.299"
 
     for f in `ls "$CESM_SD"/"$CESM_CaseName"*`; do

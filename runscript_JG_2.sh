@@ -13,7 +13,7 @@ User=katec
     JG_CaseName_Root=JG_iteration_
     BG_Restart_Year_Short=37
     BG_Restart_Year=`printf %04d $BG_Restart_Year_Short`
-    BG_Forcing_Year_Start=1
+    BG_Forcing_Year_Start=7
     let BG_Forcing_Year_End=BG_Restart_Year_Short-1
     Outputroot=/glade/scratch/$User/CESM2-CISM2-JG-BG-Sept2018
     
@@ -179,7 +179,7 @@ cp -v $BG_tm1_rest_Dir/* $JG_t_RunDir
     ./xmlchange STOP_N=10
     ./xmlchange REST_OPTION='nyears'
     ./xmlchange REST_N=5      
-    ./xmlchange HIST_OPTION='nmonths'
+    ./xmlchange HIST_OPTION='nyears'
     ./xmlchange HIST_N=1   
     ./xmlchange RESUBMIT=0
     ./xmlchange JOB_QUEUE='premium'

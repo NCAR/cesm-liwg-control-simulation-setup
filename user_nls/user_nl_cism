@@ -1,7 +1,6 @@
 temp_init = 4
 cesm_history_vars='acab_applied artm beta_internal bmlt bmlt_applied bpmp bwat calving_rate effecpress floating_mask grounded_mask smb tempstag thk thkmask topg uvel vvel wvel velnorm ubas vbas ivol iareag iareaf iarea imass ivol total_bmb_flux total_smb_flux total_calving_flux imass_above_flotation bmlt_float bmlt_ground'
 ! this is an example of the input file with (1) RELX isostasy field, (2) warm ocean mask
-cisminputfile = '/gpfs/fs1/p/cesmdata/cseg/inputdata/glc/cism/Greenland/glissade/init/greenland_4km_epsg3413_CESMsmb_RELX_temp_oceanmask.nc'
 marine_margin = 7
 
 limit_marine_cliffs = .true.

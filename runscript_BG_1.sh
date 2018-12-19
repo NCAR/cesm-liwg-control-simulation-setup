@@ -29,7 +29,7 @@ User=katec
     BG_CaseName_Root=BG_iteration_
 
     CaseName=$BG_CaseName_Root"$t"
-    Outputroot=/glade/scratch/$User/CESM2-CISM2-JG-BG-Sept2018
+    Outputroot=/glade/scratch/$User/CESM21-CISM2-JG-BG-Dec2018
        
     BG_t_RunDir=$Outputroot/$CaseName/run
 
@@ -38,7 +38,7 @@ User=katec
 
 ###set up model
     #Set the source code from which to build model
-    CCSMRoot=$D/Model_Version/cesm2.0.1+CISMmaster
+    CCSMRoot=$D/Model_Version/cesm2.1.0+cism2_1_66
 
     echo '****'
     echo "Building code from $CCSMRoot"
@@ -51,8 +51,6 @@ User=katec
     cd $D/$CaseName
 
 ###customize PE layout
-    ## Copy env_mach_pes.xml from "official spinup"
-    #cp $D/env_mach_pes_BG/env_mach_pes_fast.xml $D/$CaseName/env_mach_pes.xml #CHECK THIS!  NOT CLEAR FROM MARCUS INSTRUCTIONS
     NTHRDS=1
     PES_PER_NODE=36
     MAX_TASKS_PER_NODE=36
@@ -142,7 +140,6 @@ User=katec
     ##fi
 
     ./case.setup
-#    ./case.setup --reset
 
     ## Copy  to initial condition files
     CESM_SD="/gpfs/u/home/katec/liwg/JG_BG_setup_and_initial_conditions/BG1_initial_conditions"
@@ -174,7 +171,7 @@ User=katec
      done
 
 ### === CPL, BG-specific output settings === ###
-     cat >> user_nl_cpl <<EOF
+     cat >> $D/$CaseName/user_nl_cpl <<EOF
      histaux_a2x3hr  = .true. 
      histaux_a2x24hr = .true.
      histaux_a2x1hri = .true.
@@ -193,17 +190,12 @@ EOF
     ./xmlchange STOP_OPTION='nyears'
     ###Test layout/wallclock request using default PE layout
     ./xmlchange STOP_N=1
-    ./xmlchange JOB_WALLCLOCK_TIME=03:30:00
-    ###Production stop_n and wallclock time using Marcus's sped-up PE layout
-    #./xmlchange STOP_N=5
-    #./xmlchange JOB_WALLCLOCK_TIME=06:00:00
-
+    ./xmlchange JOB_WALLCLOCK_TIME=03:30:
     ./xmlchange RESUBMIT=0
-    ./xmlchange JOB_QUEUE='economy'
-#    ./xmlchange --subgroup case.st_archive JOB_QUEUE=regular
-#    ./xmlchange --subgroup case.st_archive JOB_WALLCLOCK_TIME=00:02:00
+    ./xmlchange JOB_QUEUE='regular'
 
 ####build
     qcmd -- ./case.build
 ###submit
-    ./case.submit
+##    ./case.submit --mail-user katec@ucar.edu --mail-type all
+

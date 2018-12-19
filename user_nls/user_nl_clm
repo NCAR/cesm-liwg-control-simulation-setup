@@ -1,4 +1,7 @@
 hist_empty_htapes = .true.
+glacier_region_rain_to_snow_behavior = 'converted_to_snow','converted_to_snow','runs_off','converted_to_snow'
+glcmec_downscale_longwave = .false.
+fsurdat  = '$DIN_LOC_ROOT/lnd/clm2/surfdata_map/surfdata_0.9x1.25_78pfts_CMIP6_simyr1850_c181209.nc'
  
 hist_fincl1 = 'EFLX_LH_TOT', 'FIRA', 'FIRA_R', 'FIRE', 'FIRE_R', 'FLDS', 'FSA', 'FSDS','FSH', 'FSM', 'QICE', 'QICE_FRZ', 'QICE_MELT', 
  'QRUNOFF', 'QRUNOFF_ICE', 'QRUNOFF_ICE_TO_COUPLER', 'QRUNOFF_TO_COUPLER', 'QSNOCPLIQ', 

@@ -1,27 +1,21 @@
 temp_init = 4
-cesm_history_vars='acab_applied artm beta_internal bmlt bmlt_applied bpmp bwat calving_rate effecpress floating_mask grounded_mask smb tempstag thk thkmask topg uvel vvel wvel velnorm ubas vbas ivol iareag iareaf iarea imass ivol total_bmb_flux total_smb_flux total_calving_flux imass_above_flotation bmlt_float bmlt_ground'
-! this is an example of the input file with (1) RELX isostasy field, (2) warm ocean mask
-marine_margin = 7
+cesm_history_vars='acab_applied artm beta_internal bmlt bmlt_applied bpmp bwat calving_rate effecpress floating_mask grounded_mask smb tempstag thk thkmask topg uvel vvel wvel velnorm ubas vbas ivol iareag iareaf iarea imass ivol total_bmb_flux total_smb_flux total_calving_flux imass_above_flotation bmlt_float bmlt_ground ice_sheet_mask ice_cap_mask'
+! this is an example of the input file with (1) RELX isostasy field, (2) no ice caps in the starting ice thickness
+marine_margin = 1  ! to run without shelves
 
 limit_marine_cliffs = .true.
-bmlt_float = 3
+bmlt_float = 0
 isostasy = 1
 which_ho_calving_front = 1
 which_ho_ground = 1
+block_inception = .true.
+remove_ice_caps = .true.
 
 which_ho_ground_bmlt = 0    !When this is set to (1) or (2) the ice sheet advances
 ice_limit = 1.
-bmlt_float_h0 = 20.
-bmlt_float_depth_frzmax = 3.            ! default is 0
-bmlt_float_depth_zfrzmax = -100.   	! this is the default
-bmlt_float_depth_meltmax = 100.         ! default is 10
-bmlt_float_depth_meltmin= 10		! default is 0
-bmlt_float_depth_zmelt0 = -200		! this is the default
-bmlt_float_depth_zmeltmax = -500 	! this is the default
-calving_minthck = 75.
-calving_timescale = 1.
-eigencalving_constant = 0.0025
-eigen2_weight = 25.
+which_ho_babc= 3
+bwat_till_max = 2
+pseudo_plastic_bedmin = -300			! revised sliding parameter
 lithosphere = 1
 asthenosphere = 1
 relaxed_tau = 3000

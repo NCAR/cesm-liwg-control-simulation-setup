@@ -24,7 +24,7 @@
 ##TODO: GET MARCUS PE LAYOUT WORKING
 
 D=$PWD
-User=jfyke
+User=katec
 
     t=2
     let tm1=t-1
@@ -32,43 +32,107 @@ User=jfyke
     BG_CaseName_Root=BG_iteration_
     JG_CaseName_Root=JG_iteration_
 
-    BG_Restart_Year=0003
-    JG_Restart_Year=0016    
+    BG_Restart_Year=0035
+    JG_Restart_Year=0151    
 
     CaseName=$BG_CaseName_Root"$t"
     PreviousJGCaseName=$JG_CaseName_Root"$t" #Need previous JG iteration to exist, of same iteration number as planned BG
     PreviousBGCaseName="$BG_CaseName_Root""$tm1" #Need previous BG iteration to exist, of n-1 iteration number as planned BG     
       
-    BG_t_RunDir=/glade/scratch/$User/$CaseName/run
-    JG_t_rest_Dir=/glade/scratch/$User/archive/$PreviousJGCaseName/rest/"$JG_Restart_Year"-01-01-00000/
-    BG_tm1_rest_Dir=/glade/scratch/$User/archive/$PreviousBGCaseName/rest/"$BG_Restart_Year"-01-01-00000/
+    Outputroot=/glade/scratch/$User/CESM21-CISM2-JG-BG-Dec2018
+    BG_t_RunDir=$Outputroot/$CaseName/run
+    JG_t_rest_Dir=$Outputroot/archive/$PreviousJGCaseName/rest/"$JG_Restart_Year"-01-01-00000/
+    BG_tm1_rest_Dir=$Outputroot/archive/$PreviousBGCaseName/rest/"$BG_Restart_Year"-01-01-00000/
     
 ###set project code
     ProjCode=P93300301
 
 ###set up model
     #Set the source code from which to build model
-    CCSMRoot=$D/Model_Version/cesm2.0.0
+    CCSMRoot=$D/Model_Version/cesm2.1.0+cism2_1_66
 
     echo '****'
     echo "Building code from $CCSMRoot"
 
     echo $D/$CaseName
 
-    $CCSMRoot/cime/scripts/create_newcase \
-                           --case $D/$CaseName \
-                           --compset B1850G \
-                           --res f09_g17_gl4 \
-                           --mach cheyenne \
-                           --project $ProjCode \
-                           --run-unsupported 
+    $CCSMRoot/cime/scripts/create_newcase --case $D/$CaseName --output-root $Outputroot --compset B1850G --res f09_g17_gl4 --mach cheyenne --project $ProjCode --run-unsupported 
 
     #Change directories into the new experiment case directory
     cd $D/$CaseName
 
 ###customize PE layout
-    ## Copy env_mach_pes.xml from "official spinup"
-    #cp $D/env_mach_pes_BG/env_mach_pes_fast.xml $D/$CaseName/env_mach_pes.xml #CHECK THIS!  NOT CLEAR FROM MARCUS INSTRUCTIONS
+    NTHRDS=1
+    PES_PER_NODE=36
+    MAX_TASKS_PER_NODE=36
+
+    NTASKS_ATM=50*$PES_PER_NODE
+    NTHRDS_ATM=$NTHRDS
+    ROOTPE_ATM=0
+
+    NTASKS_GLC=$NTASKS_ATM
+    NTHRDS_GLC=$NTHRDS
+    ROOTPE_GLC=0
+
+    NTASKS_LND=39*$PES_PER_NODE
+    NTHRDS_LND=$NTHRDS
+    ROOTPE_LND=0
+
+    NTASKS_ROF=$NTASKS_LND
+    NTHRDS_ROF=$NTHRDS
+    ROOTPE_ROF=$ROOTPE_LND
+
+    NTASKS_ICE=10*$PES_PER_NODE
+    NTHRDS_ICE=$NTHRDS
+    ROOTPE_ICE=$NTASKS_LND
+
+    NTASKS_CPL=$NTASKS_ICE
+    NTHRDS_CPL=$NTHRDS
+    ROOTPE_CPL=$NTASKS_LND
+
+    NTASKS_WAV=1*$PES_PER_NODE
+    NTHRDS_WAV=$NTHRDS
+    ROOTPE_WAV=$NTASKS_LND+$NTASKS_ICE
+
+    NTASKS_OCN=10*$PES_PER_NODE
+    NTHRDS_OCN=$NTHRDS
+    ROOTPE_OCN=$NTASKS_ATM
+
+    ./xmlchange NTASKS_ATM=$NTASKS_ATM
+    ./xmlchange NTHRDS_ATM=$NTHRDS_ATM
+    ./xmlchange ROOTPE_ATM=$ROOTPE_ATM
+
+    ./xmlchange NTASKS_GLC=$NTASKS_GLC
+    ./xmlchange NTHRDS_GLC=$NTHRDS_GLC
+    ./xmlchange ROOTPE_GLC=$ROOTPE_GLC
+
+    ./xmlchange NTASKS_LND=$NTASKS_LND
+    ./xmlchange NTHRDS_LND=$NTHRDS_LND
+    ./xmlchange ROOTPE_LND=$ROOTPE_LND
+
+    ./xmlchange NTASKS_ROF=$NTASKS_ROF
+    ./xmlchange NTHRDS_ROF=$NTHRDS_ROF
+    ./xmlchange ROOTPE_ROF=$ROOTPE_ROF
+
+    ./xmlchange NTASKS_ICE=$NTASKS_ICE
+    ./xmlchange NTHRDS_ICE=$NTHRDS_ICE
+    ./xmlchange ROOTPE_ICE=$ROOTPE_ICE
+
+    ./xmlchange NTASKS_CPL=$NTASKS_CPL
+    ./xmlchange NTHRDS_CPL=$NTHRDS_CPL
+    ./xmlchange ROOTPE_CPL=$ROOTPE_CPL
+
+    ./xmlchange NTASKS_WAV=$NTASKS_WAV
+    ./xmlchange NTHRDS_WAV=$NTHRDS_WAV
+    ./xmlchange ROOTPE_WAV=$ROOTPE_WAV
+
+    ./xmlchange NTASKS_OCN=$NTASKS_OCN
+    ./xmlchange NTHRDS_OCN=$NTHRDS_OCN
+    ./xmlchange ROOTPE_OCN=$ROOTPE_OCN
+
+    ./xmlchange PES_PER_NODE=$PES_PER_NODE
+    ./xmlchange MAX_TASKS_PER_NODE=$MAX_TASKS_PER_NODE
+
 
 ##set up case    
 
@@ -77,7 +141,7 @@ User=jfyke
     ./xmlchange RUN_REFCASE=$PreviousJGCaseName
     ./xmlchange RUN_REFDATE="$JG_Restart_Year"-01-01  
 
-    ./case.setup
+    ./case.setup --reset
 
 ###make some soft links for convenience
     ln -s $BG_t_RunDir RunDir   
@@ -107,7 +171,7 @@ EOF
 
 ###copy restarts
     # Copy restarts from end of JG simulation
-    cp $JG_t_rest_Dir/* . || { echo "copy of JG restarts failed" ; exit 1; }
+    cp $JG_t_rest_Dir/* $BG_t_RunDir || { echo "copy of JG restarts failed" ; exit 1; }
 
     #Then copy over CAM restarts from BG
     f=$BG_tm1_rest_Dir/$PreviousBGCaseName.cam.r.$BG_Restart_Year-01-01-00000.nc;  cp -f $f $BG_t_RunDir || { echo "copy of $f failed" ; exit 1; }
@@ -149,7 +213,7 @@ EOF
       fi
 
 #####run dynamic topography interactively update to bring CAM topography up to JG-generated topography before starting
-    if [ ! -f $BG_t_RunDir/Temporary_output_file.nc ]; then #Presence of this file signifies an already-run topography updating in this new BG directory...so, skip
+    if [ ! -f $BG_t_RunDir/topoDataset.nc ]; then #Presence of this file signifies an already-run topography updating in this new BG directory...so, skip
        echo 'Submitting an initial topography updating job.  Specified 45 minute sleep of this script will ensue.'
        cd $CAM_topo_regen_dir
        ./submit_topo_regen_script.sh
@@ -164,13 +228,15 @@ EOF
 ###number of years per submission 
     ./xmlchange STOP_OPTION='nyears'
     ###Test layout/wallclock request using default PE layout
-    ./xmlchange STOP_N=1
-    ./xmlchange JOB_WALLCLOCK_TIME=03:30:00
+    ./xmlchange STOP_N=5
+    ./xmlchange JOB_WALLCLOCK_TIME=12:00:00
+    ./xmlchange REST_N=1
+    ./xmlchange REST_OPTION='nyears'
     ###Production stop_n and wallclock time using Marcus's sped-up PE layout
     #./xmlchange STOP_N=5
     #./xmlchange JOB_WALLCLOCK_TIME=06:00:00
 
-    ./xmlchange RESUBMIT=0
+    ./xmlchange RESUBMIT=6
     ./xmlchange JOB_QUEUE='regular'
 #    ./xmlchange --subgroup case.st_archive JOB_QUEUE=regular
 #    ./xmlchange --subgroup case.st_archive JOB_WALLCLOCK_TIME=00:02:00
@@ -178,4 +244,4 @@ EOF
 ####build
     qcmd -- ./case.build
 ###submit
-    ./case.submit
+    ./case.submit --mail-user katec@ucar.edu --mail-type all

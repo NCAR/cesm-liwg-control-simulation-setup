@@ -11,11 +11,11 @@ User=katec
 
     BG_CaseName_Root=BG_iteration_
     JG_CaseName_Root=JG_iteration_
-    BG_Restart_Year_Short=37
+    BG_Restart_Year_Short=35
     BG_Restart_Year=`printf %04d $BG_Restart_Year_Short`
-    BG_Forcing_Year_Start=7
+    BG_Forcing_Year_Start=5
     let BG_Forcing_Year_End=BG_Restart_Year_Short-1
-    Outputroot=/glade/scratch/$User/CESM2-CISM2-JG-BG-Sept2018
+    Outputroot=/glade/scratch/$User/CESM21-CISM2-JG-BG-Dec2018
     
     #Set name of simulation
     CaseName=$JG_CaseName_Root"$t"
@@ -31,7 +31,7 @@ User=katec
 
 ###set up model
     #Set the source code from which to build model
-    CCSMRoot=$D/Model_Version/cesm2.0.1+CISMmaster
+    CCSMRoot=$D/Model_Version/cesm2.1.0+cism2_1_66
 
     echo '****'
     echo "Building code from $CCSMRoot"
@@ -120,7 +120,7 @@ User=katec
 
     ./xmlchange DATM_TOPO='cplhist' #NOTE: ALSO NEED 'a2x3h_S_topo topo' line added to datm/cime_config/namelist_definition_datm.xml!
 
-    ./case.setup
+    ./case.setup --reset
     
 ###configure archiving
     ./xmlchange DOUT_S=TRUE
@@ -155,7 +155,7 @@ EOF
 	      fname_out=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.$yr-$m.nc
 	      if [ ! -f $fname_out ]; then
 	         echo 'Concatenating ' $fname_out
-	         ncrcat -O $BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.$yr-$m-*.nc $fname_out &
+	         #ncrcat -O $BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.$yr-$m-*.nc $fname_out &
               fi
 	   done
 	   wait
@@ -169,6 +169,15 @@ EOF
 	   done	   
 	done
     done    
+        ftype=ha2x1d
+    	fname_in=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0001-01-02.nc
+    	fname_out=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0005-01.nc
+    	ncks -A -v doma_lat,doma_lon,doma_area,doma_aream,doma_mask,doma_frac $fname_in $fname_out
+    for ftype in ha2x1hi ha2x1h ha2x3h; do
+    	fname_in=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0001-01-01.nc
+    	fname_out=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0005-01.nc
+    	ncks -A -v doma_lat,doma_lon,doma_area,doma_aream,doma_mask,doma_frac $fname_in $fname_out
+    done
 
 ####copy over JG restart files from previous BG run
 cp -v $BG_tm1_rest_Dir/* $JG_t_RunDir
@@ -181,9 +190,9 @@ cp -v $BG_tm1_rest_Dir/* $JG_t_RunDir
     ./xmlchange REST_N=5      
     ./xmlchange HIST_OPTION='nyears'
     ./xmlchange HIST_N=1   
-    ./xmlchange RESUBMIT=0
-    ./xmlchange JOB_QUEUE='premium'
-    ./xmlchange JOB_WALLCLOCK_TIME='10:00:00'
+    ./xmlchange RESUBMIT=14
+    ./xmlchange JOB_QUEUE='regular'
+    ./xmlchange JOB_WALLCLOCK_TIME='12:00:00'
     ./xmlchange PROJECT="$ProjCode"
 
 ###make some soft links for convenience 
@@ -218,10 +227,11 @@ sfwf_file_fmt='nc'
 sfwf_data_type='monthly'
 EOF
 ###build
+    ./case.build --clean-all
     ./case.build    
 
 ###sumbmit
-    ./case.submit
+    ./case.submit --mail-user katec@ucar.edu --mail-type all
 
 
     

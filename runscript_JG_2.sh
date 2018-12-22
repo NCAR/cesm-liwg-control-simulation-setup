@@ -6,14 +6,14 @@ D=$PWD
 User=katec
 
 ###build up CaseNames, RunDirs, Archive Dirs, etc.
-    t=2
+    t=3
     let tm1=t-1
 
     BG_CaseName_Root=BG_iteration_
     JG_CaseName_Root=JG_iteration_
-    BG_Restart_Year_Short=35
+    BG_Restart_Year_Short=36
     BG_Restart_Year=`printf %04d $BG_Restart_Year_Short`
-    BG_Forcing_Year_Start=5
+    BG_Forcing_Year_Start=6
     let BG_Forcing_Year_End=BG_Restart_Year_Short-1
     Outputroot=/glade/scratch/$User/CESM21-CISM2-JG-BG-Dec2018
     
@@ -120,7 +120,7 @@ User=katec
 
     ./xmlchange DATM_TOPO='cplhist' #NOTE: ALSO NEED 'a2x3h_S_topo topo' line added to datm/cime_config/namelist_definition_datm.xml!
 
-    ./case.setup --reset
+    ./case.setup
     
 ###configure archiving
     ./xmlchange DOUT_S=TRUE
@@ -155,7 +155,7 @@ EOF
 	      fname_out=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.$yr-$m.nc
 	      if [ ! -f $fname_out ]; then
 	         echo 'Concatenating ' $fname_out
-	         #ncrcat -O $BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.$yr-$m-*.nc $fname_out &
+	         ncrcat -O $BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.$yr-$m-*.nc $fname_out &
               fi
 	   done
 	   wait
@@ -169,13 +169,13 @@ EOF
 	   done	   
 	done
     done    
-        ftype=ha2x1d
-    	fname_in=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0001-01-02.nc
-    	fname_out=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0005-01.nc
-    	ncks -A -v doma_lat,doma_lon,doma_area,doma_aream,doma_mask,doma_frac $fname_in $fname_out
+    ftype=ha2x1d
+    fname_in=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0001-01-02.nc
+    fname_out=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0006-01.nc
+    ncks -A -v doma_lat,doma_lon,doma_area,doma_aream,doma_mask,doma_frac $fname_in $fname_out
     for ftype in ha2x1hi ha2x1h ha2x3h; do
     	fname_in=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0001-01-01.nc
-    	fname_out=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0005-01.nc
+    	fname_out=$BG_tm1_cpl_Dir/$PreviousBGCaseName.cpl.$ftype.0006-01.nc
     	ncks -A -v doma_lat,doma_lon,doma_area,doma_aream,doma_mask,doma_frac $fname_in $fname_out
     done
 
@@ -185,12 +185,12 @@ cp -v $BG_tm1_rest_Dir/* $JG_t_RunDir
 ###configure submission length, diagnostic CPL history output, and restarting
 ### final length of JG run should be 150 years
     ./xmlchange STOP_OPTION='nyears'
-    ./xmlchange STOP_N=10
+    ./xmlchange STOP_N=15
     ./xmlchange REST_OPTION='nyears'
     ./xmlchange REST_N=5      
     ./xmlchange HIST_OPTION='nyears'
     ./xmlchange HIST_N=1   
-    ./xmlchange RESUBMIT=14
+    ./xmlchange RESUBMIT=9
     ./xmlchange JOB_QUEUE='regular'
     ./xmlchange JOB_WALLCLOCK_TIME='12:00:00'
     ./xmlchange PROJECT="$ProjCode"

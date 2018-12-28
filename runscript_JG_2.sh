@@ -6,7 +6,7 @@ D=$PWD
 User=katec
 
 ###build up CaseNames, RunDirs, Archive Dirs, etc.
-    t=3
+    t=4
     let tm1=t-1
 
     BG_CaseName_Root=BG_iteration_
@@ -231,7 +231,7 @@ EOF
     ./case.build    
 
 ###sumbmit
-    ./case.submit --mail-user katec@ucar.edu --mail-type all
+##    ./case.submit --mail-user katec@ucar.edu --mail-type all
 
 
     

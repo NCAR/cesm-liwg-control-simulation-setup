@@ -26,14 +26,14 @@
 D=$PWD
 User=katec
 
-    t=3
+    t=4
     let tm1=t-1
     
     BG_CaseName_Root=BG_iteration_
     JG_CaseName_Root=JG_iteration_
 
     BG_Restart_Year=0036
-    JG_Restart_Year=0156    
+    JG_Restart_Year=0151    
 
     CaseName=$BG_CaseName_Root"$t"
     PreviousJGCaseName=$JG_CaseName_Root"$t" #Need previous JG iteration to exist, of same iteration number as planned BG

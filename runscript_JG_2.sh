@@ -6,7 +6,7 @@ D=$PWD
 User=katec
 
 ###build up CaseNames, RunDirs, Archive Dirs, etc.
-    t=5
+    t=6
     let tm1=t-1
 
     BG_CaseName_Root=BG_iteration_

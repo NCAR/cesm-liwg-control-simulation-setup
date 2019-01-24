@@ -26,7 +26,7 @@
 D=$PWD
 User=katec
 
-    t=5
+    t=6
     let tm1=t-1
     
     BG_CaseName_Root=BG_iteration_
@@ -45,7 +45,7 @@ User=katec
     BG_tm1_rest_Dir=$Outputroot/archive/$PreviousBGCaseName/rest/"$BG_Restart_Year"-01-01-00000/
     
 ###set project code
-    ProjCode=P93300301
+    ProjCode=NCGD0035
 
 ###set up model
     #Set the source code from which to build model

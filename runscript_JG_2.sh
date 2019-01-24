@@ -27,7 +27,7 @@ User=katec
     BG_tm1_ocn_restoring_Dir=$Outputroot/archive/"$PreviousBGCaseName"/ocn/hist/
 
 ###set project code
-    ProjCode=P93300301
+    ProjCode=NCGD0035
 
 ###set up model
     #Set the source code from which to build model
